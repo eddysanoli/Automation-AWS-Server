@@ -132,7 +132,8 @@ resource "aws_security_group" "gaming_server_sg" {
         to_port = 25565
         protocol = "tcp"
         cidr_blocks = [
-            "${var.PERSONAL_IP}/32"
+            "${var.PERSONAL_IP}/32",
+            "${var.ALMENDRO_IP}/32"
         ]      
     }
 
@@ -143,7 +144,8 @@ resource "aws_security_group" "gaming_server_sg" {
         to_port = 7777
         protocol = "tcp"
         cidr_blocks = [
-            "${var.PERSONAL_IP}/32"
+            "${var.PERSONAL_IP}/32",
+            "${var.ALMENDRO_IP}/32"
         ]      
     }
 
