@@ -21,11 +21,13 @@
     # MINECRAFT                                      #
     # ============================================== #
 
+    # Added "0755" to the "mode" parameter to make sure that the copied files are editable
     - name: Copy Minecraft Worlds
       copy:
         src: "/opt/ansible/storage/minecraft/worlds"
         dest: "/home/ubuntu/minecraft"
         directory_mode: yes
+        mode: "0777"
       when: server == "minecraft"
 
     # ============================================== #
@@ -38,4 +40,5 @@
       copy:
         src: "/opt/ansible/storage/terraria/worlds/"
         dest: "/home/ubuntu/.local/share/Terraria/Worlds/"
+        mode: "0777"
       when: server == "terraria"

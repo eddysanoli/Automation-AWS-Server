@@ -1,0 +1,4 @@
+world=/home/ubuntu/.local/share/Terraria/Worlds/Noobtopia2-ElectricBoogaloo.wld
+autocreate=0
+worldname=Noobtopia2-ElectricBoogaloo
+worldpath=/home/ubuntu/.local/share/Terraria/Worlds

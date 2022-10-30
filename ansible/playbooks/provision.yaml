@@ -113,3 +113,9 @@
         src: "/opt/ansible/storage/terraria/start_server.sh"
         dest: "/home/ubuntu/terraria/start_server.sh"
         mode: "0755"
+
+    - name: Copy the Terraria Server Config
+      copy:
+        src: "/opt/ansible/storage/terraria/serverconfig.txt"
+        dest: "/home/ubuntu/terraria/1447/Linux/serverconfig.txt"
+        mode: "0777"
