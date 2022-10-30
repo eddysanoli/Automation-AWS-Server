@@ -4,8 +4,18 @@
 /* MY PERSONAL IP                               */
 /* ============================================ */
 
-# API Token for access through Terraform
+# My Personal IP Address 
 variable "PERSONAL_IP" {
+    type = string
+    default = ""
+}
+
+/* ============================================ */
+/* EDDYSANOLI.COM SERVER IP                     */
+/* ============================================ */
+
+# Eddysanoli.com Server IP Address 
+variable "EDDYSANOLI_COM_SERVER_IP" {
     type = string
     default = ""
 }

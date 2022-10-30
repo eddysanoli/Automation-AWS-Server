@@ -119,7 +119,10 @@ resource "aws_security_group" "gaming_server_sg" {
         from_port = 22
         to_port = 22
         protocol = "tcp"
-        cidr_blocks = ["${var.PERSONAL_IP}/32"]      
+        cidr_blocks = [
+            "${var.PERSONAL_IP}/32",
+            "${var.EDDYSANOLI_COM_SERVER_IP}/32"
+        ]      
     }
 
     # Egress Rules
@@ -186,6 +189,33 @@ resource "aws_instance" "gaming_server" {
         Name = "gaming-server"
     }
 
+    # Private IP address to map to an elastic IP
+    private_ip = "10.1.0.12"
+
+}
+
+/* ============================================ */
+/* ELASTIC IP                                   */
+/* ============================================ */
+
+# When you stop a running instance, the IP address is released, meaning that the
+# next time you start said instance, it will have a different IP address. To avoid
+# this, you can assign an Elastic IP to the instance (which is a static IP address)
+resource "aws_eip" "gaming_server_elastic_ip" {
+
+    # Use the previously created VPC
+    vpc = true
+
+    # Main gaming server
+    instance = aws_instance.gaming_server.id
+
+    # Private IP of the instance
+    associate_with_private_ip = "10.1.0.12"
+
+    # An elastic IP needs to be created after the internet gateway
+    # of the gaming server gets created, so we add a dependency here. 
+    depends_on = [aws_internet_gateway.gaming_server_internet_gateway]
+
     # Modify the Ansible's hosts inventory file
     provisioner "local-exec" {
 
@@ -197,5 +227,36 @@ resource "aws_instance" "gaming_server" {
         # Run it using bash
         interpreter = ["bash", "-c"]
     }
+}
 
+/* ============================================ */
+/* HOSTED ZONE                                  */
+/* ============================================ */
+
+# Associate the "noobsquad.xyz" domain with the AWS account
+resource "aws_route53_zone" "noobsquad_main_zone" {
+    name = "noobsquad.xyz"
+    comment = "Main zone for noobsquad.xyz"
+}
+resource "aws_route53_zone" "noobsquad_www_zone" {
+    name = "www.noobsquad.xyz"
+    comment = "Alias for the main noobsquad.xyz zone"
+}
+
+# Route "www.noobsquad.xyz" to "noobsquad.xyz" 
+resource "aws_route53_record" "noobsquad_www_ns" {
+    zone_id = aws_route53_zone.noobsquad_main_zone.zone_id
+    name    = "www.noobsquad.xyz"
+    type    = "NS"
+    ttl     = "30"
+    records = aws_route53_zone.noobsquad_www_zone.name_servers
+}
+
+# Route "noobsquad.xyz" to the Elastic IP of the gaming server
+resource "aws_route53_record" "noobsquad_eip_ns" {
+    zone_id = aws_route53_zone.noobsquad_main_zone.zone_id
+    name    = "noobsquad.xyz"
+    type    = "A"
+    ttl     = "30"
+    records = [aws_eip.gaming_server_elastic_ip.public_ip]
 }
