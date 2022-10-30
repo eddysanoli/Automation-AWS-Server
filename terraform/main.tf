@@ -114,7 +114,7 @@ resource "aws_security_group" "gaming_server_sg" {
     vpc_id = aws_vpc.gaming_server_vpc.id
 
     # Ingress Rules
-    # Only allow access from my address
+    # SSH Access 
     ingress {
         from_port = 22
         to_port = 22
@@ -122,6 +122,28 @@ resource "aws_security_group" "gaming_server_sg" {
         cidr_blocks = [
             "${var.PERSONAL_IP}/32",
             "${var.EDDYSANOLI_COM_SERVER_IP}/32"
+        ]      
+    }
+    
+    # Ingress Rules
+    # Minecraft Access 
+    ingress {
+        from_port = 25565
+        to_port = 25565
+        protocol = "tcp"
+        cidr_blocks = [
+            "${var.PERSONAL_IP}/32"
+        ]      
+    }
+
+    # Ingress Rules
+    # Terraria Access
+    ingress {
+        from_port = 7777
+        to_port = 7777
+        protocol = "tcp"
+        cidr_blocks = [
+            "${var.PERSONAL_IP}/32"
         ]      
     }
 
