@@ -6,6 +6,7 @@ services:
     build: ./
     image: ansible:latest
     container_name: ansible
+    entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/provision.yaml 
     volumes:
       - ./playbooks:/opt/ansible/playbooks                          # Playbooks to execute
       - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro                          # Private SSH key to allow Ansible to connect to the remote host. Uses "ro" to make it read-only
