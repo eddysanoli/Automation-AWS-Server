@@ -2,7 +2,7 @@
 - hosts: "*"
 
   # Name of the playbook
-  name: provision-eddysanoli
+  name: provision-minecraft-server
 
   # Make it so that Ansible can "escalate" to root
   # (i.e. run commands using sudo)
@@ -14,98 +14,104 @@
         update_cache: yes
         upgrade: yes
 
-    # ---------------------------------------------- #
-    - name: Install Git
-      apt:
-        name:
-          - git
-        state: latest
+    # ============================================== #
+    # MINECRAFT                                      #
+    # ============================================== #
 
-    # ---------------------------------------------- #
-    - name: Install NVM and Put the Executable in "~/.nvm"
-      shell: >
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-      args:
-        creates: "~/.nvm/nvm.sh"
-
-    - name: Setup .profile (Add NVM to PATH)
-      lineinfile:
-        path: ~/.profile
-        line: source ~/.nvm/nvm.sh
-        create: yes
-
-    - name: Install Node Versions
-      shell: ". /root/.bashrc && nvm install {{item}}"
-      with_items:
-        - "v16.18.0"
-        - "--lts"
-        - "node"
-
-    # ---------------------------------------------- #
-    # Installing Docker consists of a multi-step process. Check here for more info:
-    # https://www.ansiblepilot.com/articles/install-docker-in-debian-like-systems-ansible-module-apt_key-apt_repository-and-apt/
-
-    - name: Install Docker Dependencies
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - lsb-release
-          - gnupg
-        state: latest
-        update_cache: yes
-
-    - name: Add Docker GPG Key
-      apt_key:
-        url: https://download.docker.com/linux/debian/gpg
-        state: present
-
-    - name: Add Docker Repository
+    - name: Add Java Repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
+        repo: ppa:linuxuprising/java
         state: present
-        filename: docker
 
-    - name: Install Docker
+    - name: Install Java 16
       apt:
-        name:
-          - docker
-          - docker.io
-          - docker-compose
-          - docker-registry
-        update_cache: true
-        state: latest
+        name: oracle-java16-installer
+        state: present
 
     # -------------------------------------------- #
-    # Note: Use the HTTPS URL for the Git Repo in order to avoid the use of SSH Keys
-    # Also use the "force" option to discard any local changes to the repo.
-    - name: Clone the "Eddysanoli.com" Repo
-      git:
-        repo: https://github.com/eddysanoli/eddysanoli.com.git
-        dest: /opt/eddysanoli_repo
-        force: yes
+    - name: Create the Root Minecraft Folder
+      file:
+        path: /home/ubuntu/minecraft
+        state: directory
+        mode: "0755"
+
+    - name: Download the Latest Minecraft Server .jar
+      get_url:
+        url: https://piston-data.mojang.com/v1/objects/f69c284232d7c7580bd89a5a4931c3581eae1378/server.jar
+        dest: /home/ubuntu/minecraft/server.jar
+        mode: "0755"
 
     # -------------------------------------------- #
-    - name: Clone the "Discord Automation Bot" Repo
-      git:
-        repo: https://github.com/eddysanoli/Discord-Automation-Bot.git
-        dest: /opt/discord_bot
-        force: yes
 
-    # -------------------------------------------- #
-    - name: Copy Files for Docker Compose Deployment
+    - name: Copy Minecraft Worlds
       copy:
-        src: "/opt/ansible/storage/"
-        dest: "/opt/storage/"
+        src: "/opt/ansible/storage/minecraft/worlds"
+        dest: "/home/ubuntu/minecraft"
         directory_mode: yes
 
-    - name: Take Down the Previous Docker Compose Stack and Volumes
-      docker_compose:
-        project_src: /opt/storage/docker
-        remove_volumes: yes
+    - name: Copy Minecraft Server Properties
+      copy:
+        src: "/opt/ansible/storage/minecraft/server.properties"
+        dest: "/home/ubuntu/minecraft/server.properties"
+        mode: "0644"
+
+    # If we don't do this, the server will need to manually accept the EULA
+    - name: Copy Minecraft EULA
+      copy:
+        src: "/opt/ansible/storage/minecraft/eula.txt"
+        dest: "/home/ubuntu/minecraft/eula.txt"
+        mode: "0644"
+
+    - name: Copy Minecraft Server Icon
+      copy:
+        src: "/opt/ansible/storage/minecraft/server-icon.png"
+        dest: "/home/ubuntu/minecraft/server-icon.png"
+        mode: "0644"
+
+    # ============================================== #
+    # TERRARIA                                       #
+    # ============================================== #
+
+    - name: Create the Root Terraria Folder
+      file:
+        path: /home/ubuntu/terraria
+        state: directory
+        mode: "0755"
+
+    - name: Install Required Packages
+      apt:
+        name:
+          - unzip
+        state: present
+
+    # -------------------------------------------- #
+
+    - name: Download the Latest Terraria Server .zip
+      get_url:
+        url: https://terraria.org/api/download/pc-dedicated-server/terraria-server-1447.zip
+        dest: /home/ubuntu/terraria/terraria-server.zip
+        mode: "0755"
+
+    - name: Unzip the Terraria Server .zip
+      unarchive:
+        src: /home/ubuntu/terraria/terraria-server.zip
+        dest: /home/ubuntu/terraria
+        remote_src: yes
+
+    - name: Remove the Terraria Server .zip
+      file:
+        path: /home/ubuntu/terraria/terraria-server.zip
         state: absent
 
-    - name: Start Docker Compose Stack
-      docker_compose:
-        project_src: /opt/storage/docker
-        state: present
+    # -------------------------------------------- #
+
+    - name: Add Executable Permissions to the Server Binary
+      file:
+        path: /home/ubuntu/terraria/1447/Linux/TerrariaServer.bin.x86_64
+        mode: "0755"
+
+    - name: Copy the Terraria Worlds
+      copy:
+        src: "/opt/ansible/storage/terraria/worlds"
+        dest: "~/.local/share/Terraria/Worlds/"
+        directory_mode: yes
