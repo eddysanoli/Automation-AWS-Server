@@ -2,7 +2,7 @@
 - hosts: "*"
 
   # Name of the playbook
-  name: provision-minecraft-server
+  name: Provision the Gaming Server
 
   # Make it so that Ansible can "escalate" to root
   # (i.e. run commands using sudo)
@@ -14,19 +14,69 @@
         update_cache: yes
         upgrade: yes
 
+    - name: Install Required Server Packages
+      apt:
+        name:
+          - tmux
+        state: present
+
     # ============================================== #
     # MINECRAFT                                      #
     # ============================================== #
 
-    - name: Add Java Repository
-      apt_repository:
-        repo: ppa:linuxuprising/java
+    # - name: Add Amazon Corretto 16 Public Key
+    #   shell: wget -O- https://apt.corretto.aws/corretto.key | sudo apt-key add -
+
+    # - name: Add Amazon Corretto 16 Repository
+    #   shell: echo &#039;deb https://apt.corretto.aws stable main&#039; | sudo tee /etc/apt/sources.list.d/corretto.list
+
+    # - name: Update Server Packages
+    #   apt:
+    #     update_cache: yes
+
+    - name: Install Java
+      apt:
+        name:
+          - default-jre
+          - default-jdk
         state: present
 
-    - name: Install Java 16
-      apt:
-        name: oracle-java16-installer
-        state: present
+    # - name: Install Java package (Ubuntu/Debian)
+    #   apt:
+    #     name: "openjdk-16-jdk"
+    #     state: present
+    #     update_cache: yes
+
+    # - name: Add Java Repository
+    #   apt_repository:
+    #     repo: ppa:linuxuprising/java
+    #     state: present
+
+    # - name: Automatically select the Oracle License
+    #   shell: echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+
+    # - name: Install Java
+    #   apt:
+    #     name: oracle-java17-installer
+    #     state: present
+
+    # - name: Append the Linux Uprising PPA to the sources list file
+    #   shell: echo "deb http://ppa.launchpad.net/linuxuprising/java/ubuntu focal main" | tee /etc/apt/sources.list.d/linuxuprising-java.list
+
+    # - name: Add the Linux Uprising PPA GPG key
+    #   shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 73C3DB2A
+
+    # - name: Accept Oracle Java License
+    #   debconf:
+    #     name: "oracle-java17-installer"
+    #     question: "shared/accepted-oracle-license-v1-1"
+    #     value: "true"
+    #     vtype: "select"
+
+    # - name: Install the Java SDK
+    #   apt:
+    #     name: "oracle-java17-installer"
+    #     state: present
 
     # -------------------------------------------- #
     - name: Create the Root Minecraft Folder
@@ -42,12 +92,6 @@
         mode: "0755"
 
     # -------------------------------------------- #
-
-    - name: Copy Minecraft Worlds
-      copy:
-        src: "/opt/ansible/storage/minecraft/worlds"
-        dest: "/home/ubuntu/minecraft"
-        directory_mode: yes
 
     - name: Copy Minecraft Server Properties
       copy:
@@ -67,6 +111,12 @@
         src: "/opt/ansible/storage/minecraft/server-icon.png"
         dest: "/home/ubuntu/minecraft/server-icon.png"
         mode: "0644"
+
+    - name: Copy the Minecraft Server Start Script
+      copy:
+        src: "/opt/ansible/storage/minecraft/start_server.sh"
+        dest: "/home/ubuntu/minecraft/start_server.sh"
+        mode: "0755"
 
     # ============================================== #
     # TERRARIA                                       #
@@ -110,8 +160,8 @@
         path: /home/ubuntu/terraria/1447/Linux/TerrariaServer.bin.x86_64
         mode: "0755"
 
-    - name: Copy the Terraria Worlds
+    - name: Copy the Terraria Starting Script
       copy:
-        src: "/opt/ansible/storage/terraria/worlds"
-        dest: "~/.local/share/Terraria/Worlds/"
-        directory_mode: yes
+        src: "/opt/ansible/storage/terraria/start_server.sh"
+        dest: "/home/ubuntu/terraria/start_server.sh"
+        mode: "0755"
