@@ -24,59 +24,12 @@
     # MINECRAFT                                      #
     # ============================================== #
 
-    # - name: Add Amazon Corretto 16 Public Key
-    #   shell: wget -O- https://apt.corretto.aws/corretto.key | sudo apt-key add -
-
-    # - name: Add Amazon Corretto 16 Repository
-    #   shell: echo &#039;deb https://apt.corretto.aws stable main&#039; | sudo tee /etc/apt/sources.list.d/corretto.list
-
-    # - name: Update Server Packages
-    #   apt:
-    #     update_cache: yes
-
     - name: Install Java
       apt:
         name:
-          - default-jre
-          - default-jdk
+          - openjdk-17-jdk
+          - openjdk-17-jre
         state: present
-
-    # - name: Install Java package (Ubuntu/Debian)
-    #   apt:
-    #     name: "openjdk-16-jdk"
-    #     state: present
-    #     update_cache: yes
-
-    # - name: Add Java Repository
-    #   apt_repository:
-    #     repo: ppa:linuxuprising/java
-    #     state: present
-
-    # - name: Automatically select the Oracle License
-    #   shell: echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
-
-    # - name: Install Java
-    #   apt:
-    #     name: oracle-java17-installer
-    #     state: present
-
-    # - name: Append the Linux Uprising PPA to the sources list file
-    #   shell: echo "deb http://ppa.launchpad.net/linuxuprising/java/ubuntu focal main" | tee /etc/apt/sources.list.d/linuxuprising-java.list
-
-    # - name: Add the Linux Uprising PPA GPG key
-    #   shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 73C3DB2A
-
-    # - name: Accept Oracle Java License
-    #   debconf:
-    #     name: "oracle-java17-installer"
-    #     question: "shared/accepted-oracle-license-v1-1"
-    #     value: "true"
-    #     vtype: "select"
-
-    # - name: Install the Java SDK
-    #   apt:
-    #     name: "oracle-java17-installer"
-    #     state: present
 
     # -------------------------------------------- #
     - name: Create the Root Minecraft Folder
