@@ -11,7 +11,8 @@ services:
     entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/provision.yaml 
 
     # Copy the Worlds
-    # entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/copy-worlds.yaml
+    # entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/copy_worlds.yaml --extra-vars "game=minecraft"
+    # entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/copy_worlds.yaml --extra-vars "game=terraria"
 
     volumes:
       - ./playbooks:/opt/ansible/playbooks                          # Playbooks to execute

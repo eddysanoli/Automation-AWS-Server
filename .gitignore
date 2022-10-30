@@ -9,3 +9,4 @@ ansible/configuration/hosts
 ansible/storage/minecraft/worlds/nepelios
 ansible/storage/minecraft/worlds/juanes
 ansible/storage/terraria/server
+ansible/storage/terraria/worlds

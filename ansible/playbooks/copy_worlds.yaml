@@ -7,7 +7,16 @@
   # Make it so that Ansible can "escalate" to root
   # (i.e. run commands using sudo)
   become: true
+
+  # The worlds for which server will be copied
+  vars:
+    - server: "{{ game }}"
+
   tasks:
+    - name: Print the Game Name
+      debug:
+        msg: "Copying {{ server }} worlds"
+
     # ============================================== #
     # MINECRAFT                                      #
     # ============================================== #
@@ -17,13 +26,16 @@
         src: "/opt/ansible/storage/minecraft/worlds"
         dest: "/home/ubuntu/minecraft"
         directory_mode: yes
+      when: server == "minecraft"
 
     # ============================================== #
     # TERRARIA                                       #
     # ============================================== #
 
+    # If you add a "/" at the end of the src path, it will copy the contents of the directory
+    # If you don't add a "/" at the end of the src path, it will copy the directory itself
     - name: Copy the Terraria Worlds
       copy:
-        src: "/opt/ansible/storage/terraria/worlds"
-        dest: "~/.local/share/Terraria/Worlds/"
-        directory_mode: yes
+        src: "/opt/ansible/storage/terraria/worlds/"
+        dest: "/home/ubuntu/.local/share/Terraria/Worlds/"
+      when: server == "terraria"
