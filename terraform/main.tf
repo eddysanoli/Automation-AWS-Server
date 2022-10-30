@@ -145,7 +145,7 @@ resource "aws_key_pair" "gaming_server_auth" {
     key_name = "gaming_server_key"
 
     # Created using the command: "ssh-keygen -t ed25519"
-    # The key was named "gaming_server_key.pub" and was left with no passphrase
+    # The key was named "id_rsa.pub" and was left with no passphrase
     public_key = file("~/.ssh/id_rsa.pub")
 }
 
@@ -154,6 +154,7 @@ resource "aws_key_pair" "gaming_server_auth" {
 /* EC2 INSTANCE                                 */
 /* ============================================ */
 
+# Connect to the EC2 instance by using: ssh ubuntu@noobsquad.xyz
 resource "aws_instance" "gaming_server" {
 
     # Instance size (t2, t3, ...)
@@ -165,6 +166,7 @@ resource "aws_instance" "gaming_server" {
     # 
     #   ami = data.data_source.data_name
     # 
+    # Note: the default user for this AMI is "ubuntu"
     ami = data.aws_ami.server_ami.id
 
     # Use the previously created keypair

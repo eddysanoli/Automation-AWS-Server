@@ -6,3 +6,6 @@ terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 ansible/configuration/hosts
 ansible/configuration/hosts
+ansible/storage/minecraft/worlds/nepelios
+ansible/storage/minecraft/worlds/juanes
+ansible/storage/terraria/server
