@@ -1,21 +1,18 @@
 # Note: The values for these variables are found in "terraform.tfvars".
 
 /* ============================================ */
-/* MY PERSONAL IP                               */
+/* USER IPS                                     */
 /* ============================================ */
 
-# My Personal IP Address 
 variable "PERSONAL_IP" {
     type = string
     default = ""
 }
-
-/* ============================================ */
-/* ALMENDRO IP                                  */
-/* ============================================ */
-
-# The IP of Almendro 
 variable "ALMENDRO_IP" {
+    type = string
+    default = ""
+}
+variable "RICARDITE_IP" {
     type = string
     default = ""
 }

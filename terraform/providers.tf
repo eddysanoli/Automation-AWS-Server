@@ -9,10 +9,10 @@ terraform {
             source  = "hashicorp/aws"
             version = "~> 3.0"
         },
-        # namecheap = {
-        #     source = "namecheap/namecheap"
-        #     version = ">= 2.0.0"
-        # }
+        namecheap = {
+            source = "namecheap/namecheap"
+            version = ">= 2.0.0"
+        }
     }
 }
 
