@@ -286,3 +286,19 @@ resource "aws_route53_record" "noobsquad_eip_ns" {
     ttl     = "30"
     records = [aws_eip.gaming_server_elastic_ip.public_ip]
 }
+
+/* ============================================ */
+/* NAMECHEAP NAMESERVERS                        */
+/* ============================================ */
+
+# Add the nameservers of the hosted zone to the domain
+# Commented because API access is only provided to users with more than 50$ spent
+# resource "namecheap_domain_record" "namecheap_domain" {
+#     domain = "noobsquad.xyz"
+#     nameservers = [
+#         aws_route53_zone.noobsquad_main_zone.name_servers[0],
+#         aws_route53_zone.noobsquad_main_zone.name_servers[1],
+#         aws_route53_zone.noobsquad_main_zone.name_servers[2],
+#         aws_route53_zone.noobsquad_main_zone.name_servers[3]
+#     ]
+# }
