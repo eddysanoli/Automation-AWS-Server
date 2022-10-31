@@ -38,11 +38,8 @@ provider "aws" {
 /* ============================================ */
 
 # Namecheap API credentials
-# Cannot add this because I need to spend more than $50 to get an API key
-# provider "namecheap" {
-#     user_name = "user"
-#     api_user = "user"
-#     api_key = "key"
-#     client_ip = "123.123.123.123"
-#     use_sandbox = false
-# }
+provider "namecheap" {
+    user_name = "${var.NAMECHEAP_USER}"
+    api_user = "${var.NAMECHEAP_USER}"
+    api_key = "${var.NAMECHEAP_API_KEY}"
+}
