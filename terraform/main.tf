@@ -294,7 +294,7 @@ resource "aws_route53_record" "noobsquad_eip_ns" {
 /* ============================================ */
 
 # Add the nameservers of the hosted zone to the domain
-resource "namecheap_domain_record" "namecheap_domain" {
+resource "namecheap_domain_records" "namecheap_domain" {
     domain = "noobsquad.xyz"
     nameservers = [
         aws_route53_zone.noobsquad_main_zone.name_servers[0],
