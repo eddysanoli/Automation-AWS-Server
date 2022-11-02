@@ -18,6 +18,9 @@
 # - disableannouncementbox                          Disables the text announcements Announcement Box makes when pulsed from wire.
 # - announcementboxrange <number>                   Sets the announcement box text messaging range in pixels, -1 for serverwide announcements.
 
+# Difficulty. Sets world difficulty when using -autocreate. Options: 0(normal), 1(expert), 2(master), 3(journey)
+difficulty=2
+
 # Load a world and automatically start the server
 world=/home/ubuntu/.local/share/Terraria/Worlds/Noobtopia2-ElectricBoogaloo.wld
 
