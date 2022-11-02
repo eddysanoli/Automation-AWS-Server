@@ -1,4 +1,49 @@
+# =======================================
+# PARAMETERS
+# =======================================
+# - config <config file>				            Specifies the configuration file to use.
+# - port <port number>				                Specifies the port to listen on.
+# - players <number> / -maxplayers <number>	        Sets the max number of players
+# - pass <password> / -password <password>	        Sets the server password
+# - world <world file>				                Load a world and automatically start the server.
+# - autocreate <#>			                  	    Creates a world if none is found in the path specified by -world. World size is specified by: 1(small), 2(medium), and 3(large).
+# - banlist <path>			                  	    Specifies the location of the banlist. Defaults to "banlist.txt" in the working directory.
+# - worldname <world name>             			    Sets the name of the world when using -autocreate.
+# - secure			                        		Adds addition cheat protection to the server.
+# - noupnp				                        	Disables automatic port forwarding
+# - steam                         					Enables Steam Support
+# - lobby <friends> or <private>                    Allows friends to join the server or sets it to private if Steam is enabled
+# - ip <ip address>	                                Sets the IP address for the server to listen on
+# - forcepriority <priority>	                    Sets the process priority for this task. If this is used the "priority" setting below will be ignored.
+# - disableannouncementbox                          Disables the text announcements Announcement Box makes when pulsed from wire.
+# - announcementboxrange <number>                   Sets the announcement box text messaging range in pixels, -1 for serverwide announcements.
+
+# Load a world and automatically start the server
 world=/home/ubuntu/.local/share/Terraria/Worlds/Noobtopia2-ElectricBoogaloo.wld
+
+# Auto create a world if one doesn't exist
 autocreate=0
+
+# Auto create a world with this name
 worldname=Noobtopia2-ElectricBoogaloo
+
+# The folder where the worlds will be stored
 worldpath=/home/ubuntu/.local/share/Terraria/Worlds
+
+# Max number of players
+maxplayers=5
+
+# Automatically forward ports with uPNP
+upnp=1
+
+# Message of the day
+motd=Bienvenidos a la venganza: Noobtopia 2
+
+# Port
+port=7777
+
+# Allow Steam Support
+steam=0
+
+# Default system priority 0:Realtime, 1:High, 2:AboveNormal, 3:Normal, 4:BelowNormal, 5:Idle
+priority=1

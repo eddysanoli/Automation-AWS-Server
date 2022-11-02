@@ -101,6 +101,16 @@
         path: /home/ubuntu/terraria/terraria-server.zip
         state: absent
 
+    - name: Remove the Mac Terraria Server Files
+      file:
+        path: /home/ubuntu/terraria/1447/Mac
+        state: absent
+
+    - name: Remove the Windows Terraria Server Files
+      file:
+        path: /home/ubuntu/terraria/1447/Windows
+        state: absent
+
     # -------------------------------------------- #
 
     - name: Add Executable Permissions to the Server Binary
@@ -119,3 +129,10 @@
         src: "/opt/ansible/storage/terraria/serverconfig.txt"
         dest: "/home/ubuntu/terraria/1447/Linux/serverconfig.txt"
         mode: "0777"
+
+    # The Terraria server constantly creates a .bak file for your world next to the
+    # world file. By default the program won't have permissions to create this file,
+    # and will crash trying to backup.
+    - name: Add Write Permissions to Allow the Creation of World Backups
+      become: true
+      command: chmod 777 /home/ubuntu/.local/share/Terraria/Worlds

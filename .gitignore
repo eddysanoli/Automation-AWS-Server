@@ -10,3 +10,4 @@ ansible/storage/minecraft/worlds/nepelios
 ansible/storage/minecraft/worlds/juanes
 ansible/storage/terraria/server
 ansible/storage/terraria/worlds
+terraform/.terraform.tfstate.lock.info
