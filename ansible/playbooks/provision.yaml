@@ -133,6 +133,8 @@
     # The Terraria server constantly creates a .bak file for your world next to the
     # world file. By default the program won't have permissions to create this file,
     # and will crash trying to backup.
-    - name: Add Write Permissions to Allow the Creation of World Backups
-      become: true
-      command: chmod 777 /home/ubuntu/.local/share/Terraria/Worlds
+    - name: Create and add Permissions to "Terraria/Worlds" to Allow the Creation of World Backups
+      file:
+        path: /home/ubuntu/.local/share/Terraria/Worlds
+        state: directory
+        mode: "777"
