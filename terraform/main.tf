@@ -2,11 +2,14 @@
 /* LOCAL VARIABLES                              */
 /* ============================================ */
 
+# Variables to parametrize the script below
 locals {
 
     # Local IP address for the PC running this script
     # (Chomp is used to remove trailing whitespaces)
     LOCAL_IP = "${chomp(data.http.local_ip.body)}"
+
+    INSTANCE_TYPE = "t2.medium"
 }
 
 
@@ -187,6 +190,90 @@ resource "aws_key_pair" "gaming_server_auth" {
     public_key = file("~/.ssh/id_rsa.pub")
 }
 
+/* ============================================ */
+/* S3 BUCKET                                    */
+/* ============================================ */
+
+# Create a bucket where the server will store persistent data 
+# (worlds, saves, metrics, etc.)
+resource "aws_s3_bucket" "gaming_server_bucket" {
+    bucket = "gaming-server-data"
+
+    tags = {
+        Name = "Persistant Data for the Noobsquad Gaming Server"
+    }
+}
+
+/* ============================================ */
+/* IAM (IDENTITY AND ACCESS MANAGEMENT)         */
+/* ============================================ */
+
+# Blueprint for the list of actions and AWS resources on which an
+# entity is able to apply said actions. Here we provide read and write
+# access to the persistent data bucket.
+resource "aws_iam_policy" "gaming_server_s3_access_policy" {
+
+    name = "gaming-server-s3-access-policy"
+    path = "/"
+    description = "Policy that allows the gaming server to access the S3 bucket set for persistant data"
+
+    # Programmatic read and write permissions to the S3 bucket
+    # "jsonencode" converts a Terraform expression to valid JSON.
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Action = "s3:ListBucket"
+                Effect = "Allow"
+                Resource = "arn:aws:s3:::${aws_s3_bucket.gaming_server_bucket.bucket}"
+            },
+            {
+                Effect: "Allow"
+                Action: [
+                    "s3:PutObject",
+                    "s3:GetObject",
+                    "s3:DeleteObject"
+                ]
+                Resource: "arn:aws:s3:::${aws_s3_bucket.gaming_server_bucket.bucket}/*"
+            }
+        ]
+    })
+}
+
+# Role that can be assumed by the EC2 instance. 
+resource "aws_iam_role" "gaming_server_ec2_role" {
+
+    name = "gaming-server-ec2-role"
+
+    # The EC2 instance will be able to assume this role 
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Action = "sts:AssumeRole"
+                Effect = "Allow"
+                Principal = {
+                    Service = "ec2.amazonaws.com"
+                }
+            }
+        ]
+    })
+}
+
+# Attach the S3 access policy to the EC2 role
+resource "aws_iam_role_policy_attachment" "gaming_server_ec2_s3_access_attachment" {
+    role = aws_iam_role.gaming_server_ec2_role.name
+    policy_arn = aws_iam_policy.gaming_server_s3_access_policy.arn
+}
+
+# IAM profile that allows us to attach the EC2 role to the EC2 instance.
+# Conceptually, the profile acts like a vessel that contains only one IAM role that an
+# EC2 instance can assume
+resource "aws_iam_instance_profile" "gaming_server_s3_access_profile" {
+    name = "gaming_server_s3_access_profile"
+    role = aws_iam_role.gaming_server_ec2_role.name
+}
+
 
 /* ============================================ */
 /* EC2 INSTANCE                                 */
@@ -196,7 +283,7 @@ resource "aws_key_pair" "gaming_server_auth" {
 resource "aws_instance" "gaming_server" {
 
     # Instance size (t2, t3, ...)
-    instance_type = "t2.medium"
+    instance_type = local.INSTANCE_TYPE
 
     # Image to use for the OS of the instance 
     # (See the names used in the datasource for the AWS 
@@ -231,6 +318,9 @@ resource "aws_instance" "gaming_server" {
 
     # Private IP address to map to an elastic IP
     private_ip = "10.1.0.12"
+
+    # Attach the IAM profile to the instance so that it can access the S3 bucket
+    iam_instance_profile = aws_iam_instance_profile.gaming_server_s3_access_profile.name
 
 }
 
