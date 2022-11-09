@@ -24,3 +24,12 @@ data "aws_ami" "server_ami" {
         values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
     }
 }
+
+/* ============================================ */
+/* PERSONAL IP                                  */
+/* ============================================ */
+
+# Will return the IP address of the computer running Terraform
+data "http" "local_ip" {
+    url = "http://ipv4.icanhazip.com"
+}

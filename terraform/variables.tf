@@ -4,10 +4,6 @@
 /* USER IPS                                     */
 /* ============================================ */
 
-variable "PERSONAL_IP" {
-    type = string
-    default = ""
-}
 variable "ALMENDRO_IP" {
     type = string
     default = ""

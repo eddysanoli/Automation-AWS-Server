@@ -1,4 +1,16 @@
 /* ============================================ */
+/* LOCAL VARIABLES                              */
+/* ============================================ */
+
+locals {
+
+    # Local IP address for the PC running this script
+    # (Chomp is used to remove trailing whitespaces)
+    LOCAL_IP = "${chomp(data.http.local_ip.body)}"
+}
+
+
+/* ============================================ */
 /* VPC                                          */
 /* ============================================ */
 
@@ -120,7 +132,7 @@ resource "aws_security_group" "gaming_server_sg" {
         to_port = 22
         protocol = "tcp"
         cidr_blocks = [
-            "${var.PERSONAL_IP}/32",
+            "${local.LOCAL_IP}/32",
             "${var.EDDYSANOLI_COM_SERVER_IP}/32"
         ]      
     }
@@ -132,7 +144,7 @@ resource "aws_security_group" "gaming_server_sg" {
         to_port = 25565
         protocol = "tcp"
         cidr_blocks = [
-            "${var.PERSONAL_IP}/32",
+            "${local.LOCAL_IP}/32",
             "${var.ALMENDRO_IP}/32",
             "${var.RICARDITE_IP}/32"
         ]      
@@ -145,7 +157,7 @@ resource "aws_security_group" "gaming_server_sg" {
         to_port = 7777
         protocol = "tcp"
         cidr_blocks = [
-            "${var.PERSONAL_IP}/32",
+            "${local.LOCAL_IP}/32",
             "${var.ALMENDRO_IP}/32",
             "${var.RICARDITE_IP}/32"
         ]      
