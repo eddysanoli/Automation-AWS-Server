@@ -4,16 +4,16 @@
 
 # Configures terraform to use the desired provider for the server (AWS)
 terraform {
-    required_providers {
-        aws = {
-            source  = "hashicorp/aws"
-            version = "~> 3.0"
-        }
-        namecheap = {
-            source = "namecheap/namecheap"
-            version = ">= 2.0.0"
-        }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
     }
+    namecheap = {
+      source  = "namecheap/namecheap"
+      version = ">= 2.0.0"
+    }
+  }
 }
 
 
@@ -26,12 +26,12 @@ terraform {
 # (Credentials can also be provided through other methods, but this method
 # uses the already existing credentials file)
 provider "aws" {
-    region                  = "us-east-2"
-    shared_credentials_file = "~/.aws/credentials"
+  region                  = "us-east-2"
+  shared_credentials_file = "~/.aws/credentials"
 
-    # This one is the name between brackets present inside credentials file
-    # (If there's none, add it. eg. "[eddysanoli_admin]")
-    profile                 = "eddysanoli_admin"
+  # This one is the name between brackets present inside credentials file
+  # (If there's none, add it. eg. "[eddysanoli_admin]")
+  profile = "eddysanoli_admin"
 }
 
 /* ============================================ */
@@ -40,7 +40,7 @@ provider "aws" {
 
 # Namecheap API credentials
 provider "namecheap" {
-    user_name = "${var.NAMECHEAP_USER}"
-    api_user = "${var.NAMECHEAP_USER}"
-    api_key = "${var.NAMECHEAP_API_KEY}"
+  user_name = var.NAMECHEAP_USER
+  api_user  = var.NAMECHEAP_USER
+  api_key   = var.NAMECHEAP_API_KEY
 }
