@@ -1,0 +1,7 @@
+# When you clone, checkout, merge or pull, git will make sure that all bash scripts
+# have the correct line endings (LF = \n). This is especially important for Windows users, 
+# since IDEs running in windows will tend to change the line endings of all files to CRLF 
+# (\r\n). If you leave these CRLF endings, the docker containers will fail because they will
+# encounter an unknown symbol \r when trying to execute the entrypoint scripts. 
+*.sh text eol=lf
+*.tpl text eol=lf
