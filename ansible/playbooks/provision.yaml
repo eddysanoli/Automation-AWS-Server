@@ -31,19 +31,19 @@
     # MINECRAFT                                      #
     # ============================================== #
 
+    # Has to be installed through shell commands because
+    # using the Ansible apt module causes the installation
+    # to crash for some reason
     - name: Install Java
-      apt:
-        name:
-          - openjdk-17-jdk
-          - openjdk-17-jre
-        state: present
+      become: true
+      shell: apt install -y openjdk-17-jdk
 
     # -------------------------------------------- #
-    - name: Create the Root Minecraft Folder
+    - name: Create the Root Minecraft Folder with Approriate Permissions (777)
       file:
         path: /home/ubuntu/minecraft
         state: directory
-        mode: "0755"
+        mode: "0777"
 
     - name: Download the Latest Minecraft Server .jar
       get_url:
@@ -57,20 +57,20 @@
       copy:
         src: "/opt/ansible/storage/minecraft/server.properties"
         dest: "/home/ubuntu/minecraft/server.properties"
-        mode: "0644"
+        mode: "0777"
 
     # If we don't do this, the server will need to manually accept the EULA
     - name: Copy Minecraft EULA
       copy:
         src: "/opt/ansible/storage/minecraft/eula.txt"
         dest: "/home/ubuntu/minecraft/eula.txt"
-        mode: "0644"
+        mode: "0777"
 
     - name: Copy Minecraft Server Icon
       copy:
         src: "/opt/ansible/storage/minecraft/server-icon.png"
         dest: "/home/ubuntu/minecraft/server-icon.png"
-        mode: "0644"
+        mode: "0777"
 
     - name: Copy the Minecraft Server Start Script
       copy:
