@@ -4,6 +4,12 @@
   # Name of the playbook
   name: Provision the Gaming Server
 
+  # Playbook variables
+  vars:
+    - bucket_name: "gaming-server-data"
+    - aws_region: "us-east-2"
+    - terraria_version: "1449"
+
   # Make it so that Ansible can "escalate" to root
   # (i.e. run commands using sudo)
   become: true
@@ -86,7 +92,7 @@
 
     - name: Download the Latest Terraria Server .zip
       get_url:
-        url: https://terraria.org/api/download/pc-dedicated-server/terraria-server-1447.zip
+        url: https://terraria.org/api/download/pc-dedicated-server/terraria-server-{{ terraria_version }}.zip
         dest: /home/ubuntu/terraria/terraria-server.zip
         mode: "0755"
 
@@ -103,19 +109,19 @@
 
     - name: Remove the Mac Terraria Server Files
       file:
-        path: /home/ubuntu/terraria/1447/Mac
+        path: /home/ubuntu/terraria/{{ terraria_version }}/Mac
         state: absent
 
     - name: Remove the Windows Terraria Server Files
       file:
-        path: /home/ubuntu/terraria/1447/Windows
+        path: /home/ubuntu/terraria/{{ terraria_version }}/Windows
         state: absent
 
     # -------------------------------------------- #
 
     - name: Add Executable Permissions to the Server Binary
       file:
-        path: /home/ubuntu/terraria/1447/Linux/TerrariaServer.bin.x86_64
+        path: /home/ubuntu/terraria/{{ terraria_version }}/Linux/TerrariaServer.bin.x86_64
         mode: "0755"
 
     - name: Copy the Terraria Starting Script
@@ -124,10 +130,20 @@
         dest: "/home/ubuntu/terraria/start_server.sh"
         mode: "0755"
 
+    # The location of the server executable is different for each Terraria
+    # version. We set executable used by "start_server.sh" here, by changing
+    # the "$TERRARIA_VERSION" text in the script with the actual version.
+    - name: Replace Terraria Version in Starting Script
+      replace:
+        path: /home/ubuntu/terraria/start_server.sh
+        regexp: "$TERRARIA_VERSION"
+        replace: "{{ terraria_version }}"
+        mode: "0777"
+
     - name: Copy the Terraria Server Config
       copy:
         src: "/opt/ansible/storage/terraria/serverconfig.txt"
-        dest: "/home/ubuntu/terraria/1447/Linux/serverconfig.txt"
+        dest: "/home/ubuntu/terraria/{{ terraria_version }}/Linux/serverconfig.txt"
         mode: "0777"
 
     # The Terraria server constantly creates a .bak file for your world next to the
