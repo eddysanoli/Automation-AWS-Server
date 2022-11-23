@@ -11,3 +11,10 @@ ansible/storage/minecraft/worlds/juanes
 ansible/storage/terraria/server
 ansible/storage/terraria/worlds
 terraform/.terraform.tfstate.lock.info
+terraform/aws_server/.terraform/providers
+.terraform
+terraform/aws_server/.terraform.lock.hcl
+terraform/aws_server/terraform.tfvars
+terraform/s3_backend/.terraform.lock.hcl
+terraform/s3_backend/terraform.tfstate
+terraform/s3_backend/terraform.tfstate.backup

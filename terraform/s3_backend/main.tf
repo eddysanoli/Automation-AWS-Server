@@ -1,5 +1,5 @@
 /* ============================================ */
-/* TERRAFORM PROVIDERS                          */
+/* MAIN TERRAFORM CONFIG                        */
 /* ============================================ */
 
 # Configures terraform to use the desired provider for the server (AWS)
@@ -9,22 +9,14 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.0"
     }
-    namecheap = {
-      source  = "namecheap/namecheap"
-      version = ">= 2.0.0"
-    }
   }
 }
 
-
 /* ============================================ */
-/* AWS                                          */
+/* AWS PROVIDER                                 */
 /* ============================================ */
 
-# Provider block
-# Provides the information to access AWS specifically
-# (Credentials can also be provided through other methods, but this method
-# uses the already existing credentials file)
+# Provides access to AWS through a "credentials" file
 provider "aws" {
   region                  = "us-east-2"
   shared_credentials_file = "~/.aws/credentials"
@@ -35,12 +27,19 @@ provider "aws" {
 }
 
 /* ============================================ */
-/* NAMECHEAP                                    */
+/* S3 BACKEND TERRAFORM STATE                   */
 /* ============================================ */
 
-# Namecheap API credentials
-provider "namecheap" {
-  user_name = var.NAMECHEAP_USER
-  api_user  = var.NAMECHEAP_USER
-  api_key   = var.NAMECHEAP_API_KEY
+# S3 bucket for storing the terraform state remotely
+resource "aws_s3_bucket" "tf_state_s3_backend" {
+  bucket = "eddysanoli-terraform-s3-backend"
+  tags = {
+    Name = "Stores the terraform.tfstate file for the gaming server remotely"
+  }
+}
+
+# ACL for s3 bucket
+resource "aws_s3_bucket_acl" "tf_state_s3_backend_acl" {
+  bucket = aws_s3_bucket.tf_state_s3_backend.id
+  acl    = "private"
 }
