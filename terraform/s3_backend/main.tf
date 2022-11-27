@@ -32,7 +32,7 @@ provider "aws" {
 
 # S3 bucket for storing the terraform state remotely
 resource "aws_s3_bucket" "tf_state_s3_backend" {
-  bucket = "eddysanoli-terraform-s3-backend"
+  bucket = "gaming-server-terraform-s3-backend"
   tags = {
     Name = "Stores the terraform.tfstate file for the gaming server remotely"
   }

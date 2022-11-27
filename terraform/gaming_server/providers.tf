@@ -22,7 +22,7 @@ terraform {
   # folder and run 'terraform init' and 'terraform apply' to create
   # the bucket.
   backend "s3" {
-    bucket                  = "eddysanoli-terraform-s3-backend"
+    bucket                  = "gaming-server-terraform-s3-backend"
     region                  = "us-east-2"
     key                     = "terraform.tfstate"
     shared_credentials_file = "~/.aws/credentials"
