@@ -10,10 +10,6 @@ services:
     # Provision the Server
     entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/provision.yaml 
 
-    # Copy the Worlds
-    # entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/copy_worlds.yaml --extra-vars "game=minecraft"
-    # entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/copy_worlds.yaml --extra-vars "game=terraria"
-
     volumes:
       - ./playbooks:/opt/ansible/playbooks                          # Playbooks to execute
       - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro                          # Private SSH key to allow Ansible to connect to the remote host. Uses "ro" to make it read-only

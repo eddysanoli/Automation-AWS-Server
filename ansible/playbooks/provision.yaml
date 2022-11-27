@@ -4,28 +4,53 @@
   # Name of the playbook
   name: Provision the Gaming Server
 
-  # Playbook variables
-  vars:
-    - bucket_name: "gaming-server-data"
-    - aws_region: "us-east-2"
-    - terraria_version: "1449"
-
   # Make it so that Ansible can "escalate" to root
   # (i.e. run commands using sudo)
   become: true
+
+  # ============================================ #
+  # VARIABLES                                    #
+  # ============================================ #
+
+  vars:
+    - aws_region: "us-east-2"
+    - bucket_name: "gaming-server-data"
+    - terraria_version: "1449"
+    - minecraft_server_jar_url: "https://piston-data.mojang.com/v1/objects/f69c284232d7c7580bd89a5a4931c3581eae1378/server.jar"
+    - minecraft_server_path: "/home/ubuntu/minecraft"
+    - minecraft_worlds_path: "/home/ubuntu/minecraft/worlds"
+    - terraria_server_path: "/home/ubuntu/terraria"
+    - terraria_worlds_path: "/home/ubuntu/.local/share/Terraria/Worlds"
+
+  # ============================================ #
+  # TASKS                                        #
+  # ============================================ #
+
   tasks:
-    # ---------------------------------------------- #
+    # ============================================ #
+    # SERVER SETUP                                 #
+    # ============================================ #
+
     - name: Update Server Packages
       apt:
         update_cache: yes
         upgrade: yes
 
+    # Dependencies:
+    # - tmux: Create sessions that remain opened even after a SSH connection is closed
+    # - unzip: To unzip the Terraria server files
+    # - awscli: Use S3 bucket as persistant storage
     - name: Install Required Server Packages
       apt:
         name:
           - tmux
           - unzip
+          - awscli
         state: present
+
+    - name: Remove All Cronjobs
+      become: true
+      command: crontab -r
 
     # ============================================== #
     # MINECRAFT                                      #
@@ -38,45 +63,51 @@
       become: true
       shell: apt install -y openjdk-17-jdk
 
-    # -------------------------------------------- #
-    - name: Create the Root Minecraft Folder with Approriate Permissions (777)
+    # ============================================ #
+
+    - name: Create the Root Minecraft Folder with Appropriate Permissions (777)
       file:
-        path: /home/ubuntu/minecraft
+        path: "{{ minecraft_server_path }}"
         state: directory
         mode: "0777"
 
     - name: Download the Latest Minecraft Server .jar
       get_url:
-        url: https://piston-data.mojang.com/v1/objects/f69c284232d7c7580bd89a5a4931c3581eae1378/server.jar
-        dest: /home/ubuntu/minecraft/server.jar
+        url: "{{ minecraft_server_jar_url }}"
+        dest: "{{ minecraft_server_path }}/server.jar"
         mode: "0755"
 
-    # -------------------------------------------- #
+    # ============================================ #
 
-    - name: Copy Minecraft Server Properties
+    # The EULA needs to be copied, or you will have to manually accept it
+    - name: Copy Minecraft Server Configuration Files
       copy:
-        src: "/opt/ansible/storage/minecraft/server.properties"
-        dest: "/home/ubuntu/minecraft/server.properties"
+        src: "/opt/ansible/storage/minecraft/{{ item }}"
+        dest: "{{ minecraft_server_path }}/{{ item }}"
+        mode: "0777"
+      loop:
+        - "server.properties"
+        - "eula.txt"
+        - "server-icon.png"
+        - "start_server.sh"
+
+    # ============================================ #
+
+    - name: Create the Worlds Folder with Appropriate Permissions (777)
+      file:
+        path: "{{ minecraft_worlds_path }}"
+        state: directory
         mode: "0777"
 
-    # If we don't do this, the server will need to manually accept the EULA
-    - name: Copy Minecraft EULA
-      copy:
-        src: "/opt/ansible/storage/minecraft/eula.txt"
-        dest: "/home/ubuntu/minecraft/eula.txt"
-        mode: "0777"
+    # Copy the initially existing files from the S3 bucket to the server
+    - name: Copy Files from S3 Bucket to Minecraft Worlds Folder
+      shell: "aws s3 sync s3://{{ bucket_name }}/minecraft {{ minecraft_worlds_path }}"
 
-    - name: Copy Minecraft Server Icon
-      copy:
-        src: "/opt/ansible/storage/minecraft/server-icon.png"
-        dest: "/home/ubuntu/minecraft/server-icon.png"
-        mode: "0777"
-
-    - name: Copy the Minecraft Server Start Script
-      copy:
-        src: "/opt/ansible/storage/minecraft/start_server.sh"
-        dest: "/home/ubuntu/minecraft/start_server.sh"
-        mode: "0755"
+    - name: Cronjob to Backup Minecraft Worlds to S3 Bucket
+      cron:
+        name: "Sync Minecraft Worlds to S3 Bucket"
+        minute: "*/2"
+        job: "aws s3 sync {{ minecraft_worlds_path }} s3://{{ bucket_name }}/minecraft "
 
     # ============================================== #
     # TERRARIA                                       #
@@ -84,58 +115,59 @@
 
     - name: Create the Root Terraria Folder
       file:
-        path: /home/ubuntu/terraria
+        path: "{{ terraria_server_path }}"
         state: directory
         mode: "0755"
 
-    # -------------------------------------------- #
+    # ============================================ #
 
     - name: Download the Latest Terraria Server .zip
       get_url:
         url: https://terraria.org/api/download/pc-dedicated-server/terraria-server-{{ terraria_version }}.zip
-        dest: /home/ubuntu/terraria/terraria-server.zip
+        dest: "{{ terraria_server_path }}/terraria-server.zip"
         mode: "0755"
 
     - name: Unzip the Terraria Server .zip
       unarchive:
-        src: /home/ubuntu/terraria/terraria-server.zip
-        dest: /home/ubuntu/terraria
+        src: "{{ terraria_server_path }}/terraria-server.zip"
+        dest: "{{ terraria_server_path }}"
         remote_src: yes
 
     - name: Remove the Terraria Server .zip
       file:
-        path: /home/ubuntu/terraria/terraria-server.zip
+        path: "{{ terraria_server_path }}/terraria-server.zip"
         state: absent
 
-    - name: Remove the Mac Terraria Server Files
+    - name: Remove the Mac and Windows Terraria Server Files
       file:
-        path: /home/ubuntu/terraria/{{ terraria_version }}/Mac
+        path: "{{ terraria_server_path}}/{{ terraria_version }}/{{ item }}"
         state: absent
+      loop:
+        - "Mac"
+        - "Windows"
 
-    - name: Remove the Windows Terraria Server Files
-      file:
-        path: /home/ubuntu/terraria/{{ terraria_version }}/Windows
-        state: absent
-
-    # -------------------------------------------- #
+    # ============================================ #
 
     - name: Add Executable Permissions to the Server Binary
       file:
-        path: /home/ubuntu/terraria/{{ terraria_version }}/Linux/TerrariaServer.bin.x86_64
+        path: "{{ terraria_server_path }}/{{ terraria_version }}/Linux/TerrariaServer.bin.x86_64"
         mode: "0755"
 
     - name: Copy the Terraria Starting Script
       copy:
         src: "/opt/ansible/storage/terraria/start_server.sh"
-        dest: "/home/ubuntu/terraria/start_server.sh"
+        dest: "{{ terraria_server_path }}/start_server.sh"
         mode: "0755"
 
     # The location of the server executable is different for each Terraria
     # version. We set executable used by "start_server.sh" here, by changing
     # the "$TERRARIA_VERSION" text in the script with the actual version.
+    #
+    #     eg. "path/$TERRARIA_VERSION/" -> "path/1449/"
+    #
     - name: Replace Terraria Version in Starting Script
       replace:
-        path: /home/ubuntu/terraria/start_server.sh
+        path: "{{ terraria_server_path }}/start_server.sh"
         regexp: "$TERRARIA_VERSION"
         replace: "{{ terraria_version }}"
         mode: "0777"
@@ -143,14 +175,25 @@
     - name: Copy the Terraria Server Config
       copy:
         src: "/opt/ansible/storage/terraria/serverconfig.txt"
-        dest: "/home/ubuntu/terraria/{{ terraria_version }}/Linux/serverconfig.txt"
+        dest: "{{ terraria_server_path }}/{{ terraria_version }}/Linux/serverconfig.txt"
         mode: "0777"
+
+    # ============================================ #
 
     # The Terraria server constantly creates a .bak file for your world next to the
     # world file. By default the program won't have permissions to create this file,
     # and will crash trying to backup.
     - name: Create and add Permissions to "Terraria/Worlds" to Allow the Creation of World Backups
       file:
-        path: /home/ubuntu/.local/share/Terraria/Worlds
+        path: "{{ terraria_worlds_path }}"
         state: directory
-        mode: "777"
+        mode: "0777"
+
+    - name: Copy Files from S3 Bucket to Terraria Worlds Folder
+      shell: "aws s3 sync s3://{{ bucket_name }}/terraria/ {{ terraria_worlds_path }}"
+
+    - name: Cron Job to Backup Terraria Worlds to S3 Bucket
+      cron:
+        name: "Sync Terraria Worlds to S3 Bucket"
+        minute: "*/2"
+        job: "aws s3 sync {{ terraria_worlds_path }} s3://{{ bucket_name }}/terraria/"
