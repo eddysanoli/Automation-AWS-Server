@@ -168,7 +168,7 @@
     - name: Replace Terraria Version in Starting Script
       replace:
         path: "{{ terraria_server_path }}/start_server.sh"
-        regexp: "$TERRARIA_VERSION"
+        regexp: "TERRARIA_VERSION"
         replace: "{{ terraria_version }}"
         mode: "0777"
 

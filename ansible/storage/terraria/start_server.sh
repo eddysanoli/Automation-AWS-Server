@@ -3,4 +3,4 @@
 # (1.4.4.9 -> 1449) when the "provisioning.yaml" Ansible playbook runs. It 
 # will replace the variable by the "terraria_version" variable specified at 
 # the top of the YAML file.
-./$TERRARIA_VERSION/Linux/TerrariaServer.bin.x86_64 -config serverconfig.txt
+./TERRARIA_VERSION/Linux/TerrariaServer.bin.x86_64 -config serverconfig.txt
