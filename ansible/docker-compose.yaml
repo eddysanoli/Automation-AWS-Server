@@ -6,8 +6,6 @@ services:
     build: ./
     image: ansible:latest
     container_name: ansible
-
-    # Provision the Server
     entrypoint: ansible-playbook -u ubuntu /opt/ansible/playbooks/provision.yaml 
 
     volumes:

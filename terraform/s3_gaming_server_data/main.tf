@@ -1,44 +1,31 @@
 /* ============================================ */
-/* TERRAFORM PROVIDERS                          */
+/* MAIN TERRAFORM CONFIG                        */
 /* ============================================ */
 
 # Configures terraform to use the desired provider for the server (AWS)
 terraform {
-
-  # Providers that will be used to configure the server
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 3.0"
     }
-    namecheap = {
-      source  = "namecheap/namecheap"
-      version = ">= 2.0.0"
-    }
   }
 
   # Remotely store the 'terraform.tfstate' file in an S3 bucket.
-  # To provision said bucket first go into the 'terraform/aws_server' 
-  # folder and run 'terraform init' and 'terraform apply' to create
-  # the bucket.
   backend "s3" {
     bucket                  = "gaming-server-terraform-s3-backend"
     region                  = "us-east-2"
-    key                     = "gaming-server-terraform.tfstate"
+    key                     = "gaming-data-terraform.tfstate"
     shared_credentials_file = "~/.aws/credentials"
     profile                 = "eddysanoli_admin"
   }
 }
 
-
 /* ============================================ */
-/* AWS                                          */
+/* AWS PROVIDER                                 */
 /* ============================================ */
 
-# Provider block
-# Provides the information to access AWS specifically
-# (Credentials can also be provided through other methods, but this method
-# uses the already existing credentials file)
+# Provides access to AWS through a "credentials" file
 provider "aws" {
   region                  = "us-east-2"
   shared_credentials_file = "~/.aws/credentials"
@@ -49,12 +36,15 @@ provider "aws" {
 }
 
 /* ============================================ */
-/* NAMECHEAP                                    */
+/* GAMING SERVER PERSISTENT STORAGE (S3)        */
 /* ============================================ */
 
-# Namecheap API credentials
-provider "namecheap" {
-  user_name = var.NAMECHEAP_USER
-  api_user  = var.NAMECHEAP_USER
-  api_key   = var.NAMECHEAP_API_KEY
+# Create a bucket where the server will store persistent data 
+# (worlds, saves, metrics, etc.)
+resource "aws_s3_bucket" "gaming_server_bucket" {
+  bucket = "gaming-server-data"
+
+  tags = {
+    Name = "Persistant Data for the Noobsquad Gaming Server"
+  }
 }

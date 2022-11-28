@@ -4,6 +4,64 @@ Gaming server built to run both Terraria and Minecraft servers, without having t
 
 ----
 
+## Setup
+
+1. Create the S3 Terraform backend bucket
+
+    ```bash
+    # Move to the terraform folder
+    cd terraform/s3_terraform_backend
+
+    # Initialize the terraform project
+    terraform init
+
+    # Create the S3 bucket used for the Terraform backend
+    # (terraform.tfstate will be stored in an S3 bucket)
+    terraform apply
+    ```
+
+2. Create the S3 bucket for persistent storage
+
+    ```bash
+    # Move to the terraform folder
+    cd terraform/s3_gaming_server_data
+
+    # Initialize the terraform project
+    terraform init
+
+    # Create the S3 bucket used for persistent storage
+    # (Make sure to create two folders inside the bucket: minecraft and terraria)
+    terraform apply
+    ```
+
+3. Add a `terraform.tfvars` file to the `terraform/gaming_server` folder defining the variables found in `terraform/gaming_server/variables.tf`. It's worth mentioning that the Namecheap variables require you to open a Namecheap account, spend at least $50 in domains or services (to unlock API access), and then enable API access. After all of that, just remember to whitelist your IP address to allow the Terraform script to access Namecheap.
+
+4. Create the gaming server infrastructure
+
+    ```bash
+    # Move to the terraform folder
+    cd terraform/gaming_server
+
+    # Initialize the terraform project
+    terraform init
+
+    # Create the gaming server infrastructure
+    terraform apply
+    ```
+
+5. Provision the server (Installs dependencies, downloads the server executables, provides the proper permissions and syncs different data with the persistent storage S3 bucket)
+
+    ```bash
+    # Move to the ansible folder
+    cd ansible
+
+    # Run the "provision.yaml" Ansible playbook through the included Docker
+    # compose file.
+    docker compose up
+    ```
+
+----
+
 ## Terraform
 
 NOTE: For Terraform, all files in the same directory are going to be processed as if they were the same file. This means that, for example, if we have 3 different `.tf` files, terraform will consider all of them as a single file. Files in terraform are more of a way of organization than an actual functional requirement.

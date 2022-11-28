@@ -20,3 +20,4 @@ terraform/s3_backend/terraform.tfstate
 terraform/s3_backend/terraform.tfstate.backup
 terraform/gaming_server/.terraform.lock.hcl
 terraform/gaming_server/terraform.tfvars
+terraform/s3_gaming_server_data/.terraform.lock.hcl

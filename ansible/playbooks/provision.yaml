@@ -13,6 +13,7 @@
   # ============================================ #
 
   vars:
+    - server_timezone: "America/Guatemala"
     - aws_region: "us-east-2"
     - bucket_name: "gaming-server-data"
     - terraria_version: "1449"
@@ -48,9 +49,21 @@
           - awscli
         state: present
 
-    - name: Remove All Cronjobs
+    # Check if the crontab for root exists. If it does, then the crontab
+    # is emptied.
+    - name: Remove All Cronjobs if Crontab Exists
       become: true
-      command: crontab -r
+      shell: |
+        if [ $(crontab -l | wc -c) -ne 0 ]; then
+          crontab -r
+          echo "Reset Root Crontab"
+        fi
+
+    # Setting the timezone for the server to be in the same timezone as
+    # the user's computer. Change it via the "server_timezone" variable.
+    - name: Change the Server Timezone
+      become: true
+      shell: "timedatectl set-timezone {{ server_timezone }}"
 
     # ============================================== #
     # MINECRAFT                                      #
@@ -101,13 +114,19 @@
 
     # Copy the initially existing files from the S3 bucket to the server
     - name: Copy Files from S3 Bucket to Minecraft Worlds Folder
-      shell: "aws s3 sync s3://{{ bucket_name }}/minecraft {{ minecraft_worlds_path }}"
+      shell: "aws s3 sync s3://{{ bucket_name }}/minecraft/ {{ minecraft_worlds_path }}"
 
+    # Make it possible to change the synced files
+    - name: Set Read Write Permissions for Minecraft Worlds Files
+      command: chmod -R 0777 {{ minecraft_worlds_path }}
+
+    # Every couple of minutes, all the Minecraft worlds will be synced to the
+    # S3 bucket used for persistant storage
     - name: Cronjob to Backup Minecraft Worlds to S3 Bucket
       cron:
         name: "Sync Minecraft Worlds to S3 Bucket"
         minute: "*/2"
-        job: "aws s3 sync {{ minecraft_worlds_path }} s3://{{ bucket_name }}/minecraft "
+        job: "aws s3 sync {{ minecraft_worlds_path }} s3://{{ bucket_name }}/minecraft/"
 
     # ============================================== #
     # TERRARIA                                       #
@@ -189,11 +208,20 @@
         state: directory
         mode: "0777"
 
+    # We make sure to just copy the world files. If this is not done, the world backup
+    # files will be copied as well, and if the server detects an already existing ".bak"
+    # file, it will create a new one (".bak2"). To prevent the server from having more and
+    # more backup files, we make sure to just copy the world files.
     - name: Copy Files from S3 Bucket to Terraria Worlds Folder
-      shell: "aws s3 sync s3://{{ bucket_name }}/terraria/ {{ terraria_worlds_path }}"
+      shell: 'aws s3 sync s3://{{ bucket_name }}/terraria/ {{ terraria_worlds_path }} --exclude "*" --include "*.wld"'
 
+    - name: Set Read Write Permissions for Terraria World Files
+      command: chmod -R 0777 {{ terraria_worlds_path }}
+
+    # The command to exclude all files except ".wld" files was fetched from here:
+    # https://stackoverflow.com/questions/23895419/
     - name: Cron Job to Backup Terraria Worlds to S3 Bucket
       cron:
         name: "Sync Terraria Worlds to S3 Bucket"
         minute: "*/2"
-        job: "aws s3 sync {{ terraria_worlds_path }} s3://{{ bucket_name }}/terraria/"
+        job: 'aws s3 sync {{ terraria_worlds_path }} s3://{{ bucket_name }}/terraria/ --exclude "*" --include "*.wld"'

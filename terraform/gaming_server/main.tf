@@ -194,14 +194,11 @@ resource "aws_key_pair" "gaming_server_auth" {
 /* S3 BUCKET                                    */
 /* ============================================ */
 
-# Create a bucket where the server will store persistent data 
-# (worlds, saves, metrics, etc.)
-resource "aws_s3_bucket" "gaming_server_bucket" {
+# The S3 bucket used for persistent storage needs to be created before
+# running this script. Here, a "data" block is used that references the
+# existing resource
+data "aws_s3_bucket" "gaming_server_bucket" {
   bucket = "gaming-server-data"
-
-  tags = {
-    Name = "Persistant Data for the Noobsquad Gaming Server"
-  }
 }
 
 /* ============================================ */
@@ -231,9 +228,11 @@ resource "aws_iam_policy" "gaming_server_s3_access_policy" {
         Resource : "arn:aws:s3:::*"
       },
       {
-        Action   = "s3:ListBucket"
-        Effect   = "Allow"
-        Resource = "arn:aws:s3:::${aws_s3_bucket.gaming_server_bucket.bucket}"
+        Effect : "Allow"
+        Action : [
+          "s3:ListBucket"
+        ]
+        Resource : "arn:aws:s3:::${data.aws_s3_bucket.gaming_server_bucket.bucket}"
       },
       {
         Effect : "Allow"
@@ -242,7 +241,7 @@ resource "aws_iam_policy" "gaming_server_s3_access_policy" {
           "s3:GetObject",
           "s3:DeleteObject"
         ]
-        Resource : "arn:aws:s3:::${aws_s3_bucket.gaming_server_bucket.bucket}/*"
+        Resource : "arn:aws:s3:::${data.aws_s3_bucket.gaming_server_bucket.bucket}/*"
       }
     ]
   })
