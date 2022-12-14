@@ -125,7 +125,7 @@
     - name: Cronjob to Backup Minecraft Worlds to S3 Bucket
       cron:
         name: "Sync Minecraft Worlds to S3 Bucket"
-        minute: "*/2"
+        minute: "*/1"
         job: "aws s3 sync {{ minecraft_worlds_path }} s3://{{ bucket_name }}/minecraft/"
 
     # ============================================== #
@@ -223,5 +223,5 @@
     - name: Cron Job to Backup Terraria Worlds to S3 Bucket
       cron:
         name: "Sync Terraria Worlds to S3 Bucket"
-        minute: "*/2"
+        minute: "*/1"
         job: 'aws s3 sync {{ terraria_worlds_path }} s3://{{ bucket_name }}/terraria/ --exclude "*" --include "*.wld"'
