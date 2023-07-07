@@ -12,6 +12,10 @@ variable "RICARDITE_IP" {
   type    = string
   default = ""
 }
+variable "JUANES_IP" {
+  type    = string
+  default = ""
+}
 
 /* ============================================ */
 /* EDDYSANOLI.COM SERVER IP                     */

@@ -17,7 +17,7 @@
     - aws_region: "us-east-2"
     - bucket_name: "gaming-server-data"
     - terraria_version: "1449"
-    - minecraft_server_jar_url: "https://piston-data.mojang.com/v1/objects/f69c284232d7c7580bd89a5a4931c3581eae1378/server.jar"
+    - minecraft_server_jar_url: "https://piston-data.mojang.com/v1/objects/84194a2f286ef7c14ed7ce0090dba59902951553/server.jar"
     - minecraft_server_path: "/home/ubuntu/minecraft"
     - minecraft_worlds_path: "/home/ubuntu/minecraft/worlds"
     - terraria_server_path: "/home/ubuntu/terraria"

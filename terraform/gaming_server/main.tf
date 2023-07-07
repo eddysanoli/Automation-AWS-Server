@@ -149,7 +149,8 @@ resource "aws_security_group" "gaming_server_sg" {
     cidr_blocks = [
       "${local.LOCAL_IP}/32",
       "${var.ALMENDRO_IP}/32",
-      "${var.RICARDITE_IP}/32"
+      "${var.RICARDITE_IP}/32",
+      "${var.JUANES_IP}/32"
     ]
   }
 
@@ -162,7 +163,8 @@ resource "aws_security_group" "gaming_server_sg" {
     cidr_blocks = [
       "${local.LOCAL_IP}/32",
       "${var.ALMENDRO_IP}/32",
-      "${var.RICARDITE_IP}/32"
+      "${var.RICARDITE_IP}/32",
+      "${var.JUANES_IP}/32"
     ]
   }
 
