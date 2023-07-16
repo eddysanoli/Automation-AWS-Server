@@ -10,8 +10,8 @@ services:
 
     volumes:
       - ./playbooks:/opt/ansible/playbooks                          # Playbooks to execute
-      - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro                          # Private SSH key to allow Ansible to connect to the remote host. Uses "ro" to make it read-only
-      - ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub:ro                 	
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa                             # Private SSH key to allow Ansible to connect to the remote host. 
+      - ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub
       - ./storage:/opt/ansible/storage                              # Directory where files that are going to be transfered to the remote hosts are stored 
       - ./configuration/hosts:/etc/ansible/hosts                    # Use hosts file found in the local repo  
       - ./configuration/ansible.cfg:/opt/ansible/ansible.cfg        # Use ansible.cfg file found in the local repo
